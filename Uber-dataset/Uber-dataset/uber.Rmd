@@ -1,0 +1,94 @@
+---
+title: "Uber Notebook"
+output: html_notebook
+---
+
+```{r}
+library(dplyr) # Manipulation data
+library(ggplot2) # Visualization
+library(ggthemes) # add on for ggplot2
+library(tidyr) # tidy data
+library(scales)
+library(DT) # Interact with Javascript
+library(lubridate) # Time Module
+
+colors = c("#CC1011", "#665555", "#05a399", "#cfcaca", "#f5e840", "#0683c9", "#e075b0")
+          
+```
+
+```{r}
+
+getwd()
+```
+
+
+
+```{r}
+
+apr_data <- read.csv("uber-raw-data-apr14.csv",sep=",")
+may_data <- read.csv("uber-raw-data-may14.csv",sep=",")
+jun_data <- read.csv("uber-raw-data-jun14.csv",sep=",")
+jul_data <- read.csv("uber-raw-data-jul14.csv",sep=",")
+aug_data <- read.csv("uber-raw-data-aug14.csv",sep=",")
+sep_data <- read.csv("uber-raw-data-sep14.csv",sep=",")
+
+```
+```{r}
+
+df <- rbind(apr_data,may_data,jun_data,jul_data,aug_data,sep_data)
+print(names(df))
+print(summary(df))
+
+print(df$Date.Time[1])
+print( df$Time[1])
+```
+```{r}
+df$Date.Time <- as.POSIXct(df$Date.Time, format ="%m/%d/%Y %H:%M:%S")
+df$Time <- format(as.POSIXct(df$Date.Time,format="%m/%d/%Y %H:%M:%S"),format="%H:%M:%S")
+df$Date.Time <- lubridate::ymd_hms(df$Date.Time)
+df$Day <- factor(lubridate::day(df$Date.Time))
+df$month <- factor(lubridate::month(df$Date.Time,label=TRUE))
+df$year <- factor(lubridate::year(df$Date.Time))
+df$dayofWeek <- factor(lubridate::wday(df$Date.Time,label=TRUE))
+df$hour <- factor(lubridate::hour(df$Date.Time))
+df$minute <- factor(lubridate::minute(df$Date.Time))
+df$second <- factor(lubridate::second(df$Date.Time))
+head(df)
+```
+```{r}
+str(df)
+```
+```{r}
+
+hour_data <- df %>%
+  dplyr::group_by(hour) %>%
+  dplyr::summarize(Total= n())
+DT::datatable(hour_data)
+```
+```{r}
+minute_data <- df %>%
+  dplyr::group_by(minute) %>%
+  dplyr::summarize(Total = n())
+
+DT::datatable(minute_data)
+
+```
+
+```{r}
+
+print(minute_data[ minute_data$Total == max(minute_data$Total),])
+print(minute_data[ (minute_data$Total <= max(minute_data$Total) & minute_data$Total >=76500),names(minute_data)][1:10,])
+
+
+```
+
+```{r}
+hourMinute_data <- df %>%
+  dplyr::group_by(hour,minute) %>%
+  dplyr::summarise(TOtal = n())
+
+DT::datatable(hourMinute_data)
+
+
+
+```
