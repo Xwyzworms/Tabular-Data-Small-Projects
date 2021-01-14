@@ -1,6 +1,6 @@
 ---
 title: "Uber Notebook"
-output: html_notebook
+output: html_document
 ---
 
 ```{r}
@@ -11,9 +11,9 @@ library(tidyr) # tidy data
 library(scales)
 library(DT) # Interact with Javascript
 library(lubridate) # Time Module
-
+library(knitr)
 colors = c("#CC1011", "#665555", "#05a399", "#cfcaca", "#f5e840", "#0683c9", "#e075b0")
-          
+      
 ```
 
 ```{r}
@@ -77,8 +77,8 @@ DT::datatable(minute_data)
 ```{r}
 
 print(minute_data[ minute_data$Total == max(minute_data$Total),])
-print(minute_data[ (minute_data$Total <= max(minute_data$Total) & minute_data$Total >=76500),names(minute_data)][1:10,])
-
+print(minute_data[ (minute_data$Total <= max(minute_data$Total) & minute_data$Total >=76500),names(minute_data)][1:9,])
+top10minute_data <- minute_data[ (minute_data$Total <= max(minute_data$Total) & minute_data$Total >=76500),names(minute_data)][1:9,]
 
 ```
 
@@ -89,6 +89,80 @@ hourMinute_data <- df %>%
 
 DT::datatable(hourMinute_data)
 
+```
 
+```{r}
+
+selectedTopMinuteHour <- hourMinute_data[hourMinute_data$minute %in% top10minute_data$minute,names(hourMinute_data)]
+DT::datatable(selectedTopMinuteHour)
+```
+
+
+
+```{r}
+Top3500to6000 <- selectedTopMinuteHour[selectedTopMinuteHour$TOtal > 3500 & selectedTopMinuteHour$TOtal < 6000, names(selectedTopMinuteHour)]
+DT::datatable(Top3500to6000)
+TopHourTransaction <- Top3500to6000 %>%
+  dplyr::group_by(hour) %>%
+  dplyr::summarize(Total =  sum(TOtal)) %>%
+  dplyr::ungroup()
+
+
+print(TopHourTransaction)
+print(top10minute_data$minute)
+```
+
+
+```{r}
+ggplot2::ggplot(TopHourTransaction,aes(hour,Total,fill = hour))+
+  ggplot2::geom_bar(stat="identity")
+
+
+```
+
+```{r}
+head(hour_data)
+ggplot2::ggplot(hour_data,aes(hour,Total,fill=hour))+
+  ggplot2::geom_bar(stat="identity")
+
+
+```
+```{r}
+minuteTOP <- Top3500to6000 %>%
+  dplyr::group_by(minute) %>%
+  dplyr::summarize(Total = sum(TOtal)) %>%
+  dplyr::ungroup()
+  
+DT::datatable(minuteTOP)
+
+```
+
+
+```{r}
+
+ggplot2::ggplot(minuteTOP,aes(minute,Total,fill=minute))+
+  ggplot2::geom_bar(stat="identity")
+
+```
+
+
+```{r}
+head(minute_data)
+ggplot2::ggplot(minute_data,aes(minute,Total,fill=minute))+
+  ggplot2::geom_bar(stat = "identity")
+
+```
+
+```{r}
+
+
+```
+
+```{r}
+
+
+```
+
+```{r}
 
 ```
