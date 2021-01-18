@@ -12,6 +12,7 @@ library(scales)
 library(DT) # Interact with Javascript
 library(lubridate) # Time Module
 library(knitr)
+library(ggpubr)
 colors = c("#CC1011", "#665555", "#05a399", "#cfcaca", "#f5e840", "#0683c9", "#e075b0")
       
 ```
@@ -155,14 +156,89 @@ ggplot2::ggplot(minute_data,aes(minute,Total,fill=minute))+
 
 ```{r}
 
-
-```
-
-```{r}
+names(df)
+unique(df$month)
 
 
 ```
 
 ```{r}
+
+month_hour <- df %>% dplyr::group_by(month,hour) %>%
+  dplyr::summarise(Total = n())
+
+ggplot2::ggplot(month_hour , aes(hour,Total,fill=month))+
+  ggplot2::geom_bar(stat = "identity",position="dodge") + 
+  ggplot2::ggtitle("Trips by month and hour")+
+  ggplot2::scale_y_continuous(labels=comma)
+```
+
+```{r fig.width=15,fig.height=8}
+dayHour_trips <- df %>% dplyr::group_by(Day,hour) %>%
+  dplyr::summarize(Total = n()) %>%
+  dplyr::ungroup()
+
+tp <- ggplot2::ggplot(dayHour_trips, aes(Day,Total))+
+  ggplot2::geom_bar(stat="identity",fill="darkred")+
+  ggplot2::ggtitle("Trips Per day")
+
+tp1 <- ggplot2::ggplot(month_hour, aes(month,Total))+
+  ggplot2::geom_bar(stat="identity",fill="darkred") +
+  ggplot2::ggtitle("Trips per Month") +
+  ggplot2::scale_y_continuous(labels=comma)
+
+ggpubr::ggarrange(tp, tp1, labels=c("A","B"),
+                  ncol=1,nrow=2)
+```
+
+If We Look the bar plot,its obvious that on Sep The trips goes up but we can't conclude trips per day YET,since we dont know in which months the outliers exist .. So 
+i m going to make barplot for t
+
+```{r fig.width=15, fig.height=8}
+
+day_month <- df %>% dplyr::group_by(month,dayofWeek) %>%
+  dplyr::summarize(Total = n()) %>%
+  dplyr::ungroup()
+
+tp <- ggplot2::ggplot(day_month,aes(dayofWeek,Total,fill=month)) +
+  ggplot2::geom_bar(stat="identity",position='dodge') +
+  ggplot2::ggtitle("Trips day per month") + 
+  ggplot2::scale_y_continuous(labels=comma) +
+  ggplot2::scale_fill_manual(values=colors)
+
+tp2 <- ggplot2::ggplot(day_month,aes(month,Total,fill=dayofWeek))+
+  ggplot2::geom_bar(stat="identity",position="dodge")+
+  ggplot2::ggtitle("Trips month per day") +
+  ggplot2::scale_y_continuous(labels=comma)+
+  ggplot2::scale_fill_manual(values=colors)
+ggpubr::ggarrange(tp,tp2,labels=c("A","B"),
+                  nrow=2,ncol=1)
+```
+
+```{r fig.width=15 ,fig.height=8}
+unique(df$Base)
+
+base_tot <- df %>% dplyr::group_by(Base)%>%
+  dplyr::summarise(Total=n())
+tp <- ggplot2::ggplot(base_tot,aes(Base,Total))+
+  ggplot2::geom_bar(stat='identity',position="dodge",fill="darkred")+
+  ggplot2::ggtitle("Base Trips")+
+  ggplot2::scale_y_continuous(labels=comma)
+
+base_tot_month <- df %>%
+  dplyr::group_by(Base,month) %>%
+  dplyr::summarise(Total=n())
+
+tp2 <- ggplot2::ggplot(base_tot_month,aes(Base,Total,fill=month))+
+  ggplot2::geom_bar(stat="identity",position="dodge")+
+  ggplot2::ggtitle("Base Month")+
+  ggplot2::scale_y_continuous(labels=comma) + 
+  ggplot2::scale_fill_manual(values=colors)
+
+ggpubr::ggarrange(tp,tp2,labels=c("A","B"),
+                  ncol=1,nrow=2)
+  
+
+
 
 ```
