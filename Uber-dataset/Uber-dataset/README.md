@@ -1,2 +1,2 @@
 
-[AnalisaNya](www.rpubs.com/Xwyzworm/713699)
+[AnalisaNya](https://rpubs.com/Xywzworm/713699)
