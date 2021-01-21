@@ -1,0 +1,45 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+pacman::p_load(readr,ggplot2,dplyr,tidyr,Hmisc,BiocManager,arules,arulesViz)
+
+df <-  read.transactions("MarketbasketOptimization.csv",format="basket",sep=",",skip=0)
+arules::inspect(head(df))
+```
+
+```{r}
+summary(df)
+```
+
+
+Lets Check the frequency for each top 15 items
+```{r}
+sort(arules::itemFrequency(df, type= "absolute"),decreasing = TRUE)[1:15]
+```
+
+
+```{r}
+arules::itemFrequencyPlot(df,topN=15,type="absolute",main="Item Freq")
+
+```
+
+```{r}
+
+
+```
+
+```{r}
+
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
